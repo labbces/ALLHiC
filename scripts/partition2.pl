@@ -26,7 +26,7 @@ my $refSeq = $opt_r;
 print STDOUT "START: Indexing genome assembly -- ". localtime ."\n";
 
 my $ctgn;
-my $refSeq_inxFile='index.file';
+my $refSeq_inxFile='index2.file';
 
 my $refdb = Bio::Index::Fasta->new(-filename => $refSeq_inxFile,
                                    -write_flag => 1);
@@ -42,6 +42,7 @@ while(<IN>){
 	chomp;
 	my @data = split(/\s+/,$_);
 	my $chrn = $data[1];
+	next if ($chrn !~ /^Chr/);
 	foreach my $i(3..$#data){
 		my $ctg = (split/,/,$data[$i])[1];
 		$ctgdb{$ctg}->{$chrn}++;
@@ -50,15 +51,24 @@ while(<IN>){
 close IN;
 
 my %chrdb; ### pre-defined cluster based on chromosomes of close-releative species
-foreach my $ctg (keys %ctgdb){
+foreach my $ctg (sort(keys(%ctgdb))){
 	my $count = 0;
-	foreach my $chrn (sort {$ctgdb{$ctg}->{$b}<=>$ctgdb{$ctg}->{$a}} keys %{$ctgdb{$ctg}}){
+	foreach my $chrn (sort {$ctgdb{$ctg}->{$b}<=>$ctgdb{$ctg}->{$a}} sort(keys(%{$ctgdb{$ctg}}))){
 		$count++;
 		next if($count>1);
 #		print "$ctg	$chrn	$ctgdb{$ctg}->{$chrn}\n";
 		$chrdb{$chrn} .= $ctg.",";
 		}
 	}
+print "\tLOG:  There are ". scalar(keys(%ctgdb))." contigs assigned to chromossomes\n";
+print "\tLOG:  There are ". scalar(keys(%chrdb))." chromossomes chromossomes with assigned contigs\n";
+
+open TEST, ">test2.chr2ctg.tbl";
+foreach my $c (sort(keys(%chrdb))){
+ foreach my $ctg (sort(split(/,/,$chrdb{$c}))){
+  print TEST "$c\t$ctg\n";
+ }
+}
 
 print STDOUT "END: Creating data structures to keep Allele.gene.table -- ". localtime ."\n";
 
@@ -68,8 +78,10 @@ system("mkdir -p $wrkd");
 
 print STDOUT "START: Separating assembled contigs per reference Chromosome -- ". localtime ."\n";
 #Separate contigs for each reference chrosomome
-foreach my $chrn (keys %chrdb){
+foreach my $chrn (sort(keys %chrdb)){
+	next if ($chrn !~ /^Chr/);
 	my @ctgdb  = split(/,/,$chrdb{$chrn});
+	print "\tLOG:  There are ". scalar(@ctgdb)." contigs for chromosome $chrn\n";
 	if (!-d "$wrkd/$chrn"){
 		system("mkdir -p $wrkd/$chrn");
 		}
