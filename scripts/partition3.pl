@@ -52,12 +52,21 @@ close IN;
 my %chrdb; ### pre-defined cluster based on chromosomes of close-releative species
 foreach my $ctg (sort(keys(%ctgdb))){
 	my $count = 0;
-	foreach my $chrn (sort {$ctgdb{$ctg}->{$b}<=>$ctgdb{$ctg}->{$a}} sort(keys(%{$ctgdb{$ctg}}))){
-		$count++;
-		next if($count>1);
-#		print "$ctg	$chrn	$ctgdb{$ctg}->{$chrn}\n";
-		$chrdb{$chrn} .= $ctg.",";
+#DMRP	foreach my $chrn (sort {$ctgdb{$ctg}->{$b}<=>$ctgdb{$ctg}->{$a}} sort(keys(%{$ctgdb{$ctg}}))){
+#DMRP		$count++;
+#DMRP		next if($count>1);
+#DMRP#		print "$ctg	$chrn	$ctgdb{$ctg}->{$chrn}\n";
+#DMRP		$chrdb{$chrn} .= $ctg.",";
+#DMRP		}
+	my $maxChr = "";
+	my $maxCnt = 0;
+	foreach my $chrn (sort(keys(%{$ctgdb{$ctg}}))){
+		if ($ctgdb{$ctg}->{$chrn} > $maxCnt){
+			$maxCnt = $ctgdb{$ctg}->{$chrn};
+			$maxChr = $chrn;
+			}
 		}
+	$chrdb{$maxChr} .= $ctg.",";
 	}
 
 print "\tLOG:  There are ". scalar(keys(%ctgdb))." contigs assigned to chromossomes\n";
