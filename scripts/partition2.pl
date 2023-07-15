@@ -99,6 +99,7 @@ while(<BAM>){
 	my ($c1,$c2) = (split/\s+/,$_)[2,6];
 	my @chrns=keys(%{$ctgdb{$c1}});
         foreach my $chrn (@chrns){
+		next if ($chrn !~ /^Chr/);
 		my @ctgdb  = split(/,/,$chrdb{$chrn});
 		my %tmpdb = (); $tmpdb{'='}++; ### need retain intra-contig links
 		map {$tmpdb{$_}++} @ctgdb;
