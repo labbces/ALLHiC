@@ -2,7 +2,7 @@
 
 #This script requires a lot less RAM memory than the original version (b49ddea) and requires bioperl
 use Getopt::Std;
-getopts "g:d:b:r:";
+getopts "g:d:b:r:t:";
 use Bio::Index::Fasta;
 
 
@@ -14,12 +14,14 @@ if ((!defined $opt_g)|| (!defined $opt_r)) {
       -b : optional,default prunning.bam
       -r : reference ctg assembly
       -d : optional, default wrk_dir
+      -t : optional, threads, default 1
 ************************************************************************\n";
 }
 
 my $bam    = (defined $opt_b)?$opt_b:"prunning.bam";
 my $table  = $opt_g;
 my $wrkd   = (defined $opt_d)?$opt_d:"wrk_dir";
+my $CPUS   = (defined $opt_t)?$opt_t:1;
 my $refSeq = $opt_r;
 
 ### Read referece ctg fasta
@@ -133,7 +135,7 @@ foreach my $chrn (sort(keys %chrdb)){
  	close BAM;
 
 	close $fh_samout{$chrn};
-	system("samtools view -bt $wrkd/$chrn/seq.fasta.fai $wrkd/$chrn/sample.clean.sam > $wrkd/$chrn/sample.clean.bam");
+	system("samtools view --threads $CPUS -bt $wrkd/$chrn/seq.fasta.fai $wrkd/$chrn/sample.clean.sam > $wrkd/$chrn/sample.clean.bam");
 	system("samtools flagstat $wrkd/$chrn/sample.clean.bam >  $wrkd/$chrn/sample.clean.bam.flagstat");
 	}
 
