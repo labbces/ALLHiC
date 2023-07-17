@@ -24,7 +24,6 @@ my $table  = $opt_g;
 my $wrkd   = (defined $opt_d)?$opt_d:"wrk_dir";
 my $refSeq = $opt_r;
 
-print "$CPUS\n";
 ### Read referece ctg fasta
 print STDOUT "START: Indexing genome assembly -- ". localtime ."\n";
 
